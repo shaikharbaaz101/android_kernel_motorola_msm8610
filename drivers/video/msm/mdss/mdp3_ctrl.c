@@ -1566,9 +1566,8 @@ static int mdp3_ctrl_lut_update(struct msm_fb_data_type *mfd,
 	lut_config.lut_sel = mdp3_session->lut_sel;
 	lut_config.lut_position = 0;
 	lut_config.lut_dirty = true;
-	/* In HW the order is color0 = g, color1 = r and color2 = b*/
-	lut.color0_lut = setup ? g : cmap->green;
-	lut.color1_lut = setup ? r : cmap->red;
+	lut.color0_lut = setup ? r : cmap->red;
+	lut.color1_lut = setup ? g : cmap->green;
 	lut.color2_lut = setup ? b : cmap->blue;
 
 	mutex_lock(&mdp3_session->lock);

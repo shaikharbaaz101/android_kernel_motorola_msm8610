@@ -117,98 +117,6 @@ clear:
 }
 EXPORT_SYMBOL(devfreq_conservative_func);
 
-static ssize_t conservative_upthreshold_show(struct kobject *kobj,
-					     struct kobj_attribute *attr,
-					     char *buf)
-{
-	return sprintf(buf, "%u\n", upthreshold);
-}
-
-static ssize_t conservative_upthreshold_store(struct kobject *kobj,
-					      struct kobj_attribute *attr,
-					      const char *buf, size_t count)
-{
-	int ret;
-	unsigned int val;
-
-	ret = sscanf(buf, "%d", &val);
-	if (ret != 1 || val > 100 || val < downthreshold)
-		return -EINVAL;
-
-	upthreshold = val;
-
-	return ret;
-}
-
-static ssize_t conservative_downthreshold_show(struct kobject *kobj,
-					       struct kobj_attribute *attr,
-					       char *buf)
-{
-	return sprintf(buf, "%u\n", downthreshold);
-}
-
-static ssize_t conservative_downthreshold_store(struct kobject *kobj,
-						struct kobj_attribute *attr,
-						const char *buf, size_t count)
-{
-	int ret;
-	unsigned int val;
-
-	ret = sscanf(buf, "%d", &val);
-	if (ret != 1 || val > upthreshold)
-		return -EINVAL;
-
-	downthreshold = val;
-
-	return ret;
-}
-
-static ssize_t conservative_conservativeness_show(struct kobject *kobj,
-						  struct kobj_attribute *attr,
-						  char *buf)
-{
-	return sprintf(buf, "%u\n", conservativeness);
-}
-
-static ssize_t conservative_conservativeness_store(struct kobject *kobj,
-						   struct kobj_attribute *attr,
-						   const char *buf,
-						   size_t count)
-{
-	int ret;
-	unsigned int val;
-
-	ret = sscanf(buf, "%d", &val);
-	if (ret != 1 || val > 100)
-		return -EINVAL;
-
-	conservativeness = val;
-
-	return ret;
-}
-
-static struct kobj_attribute upthreshold_attribute =
-	__ATTR(upthreshold, 0664, conservative_upthreshold_show,
-	       conservative_upthreshold_store);
-static struct kobj_attribute downthreshold_attribute =
-	__ATTR(downthreshold, 0664, conservative_downthreshold_show,
-	       conservative_downthreshold_store);
-static struct kobj_attribute conservativeness_attribute =
-	__ATTR(conservativeness, 0664, conservative_conservativeness_show,
-	       conservative_conservativeness_store);
-
-static struct attribute *attrs[] = {
-	&upthreshold_attribute.attr,
-	&downthreshold_attribute.attr,
-	&conservativeness_attribute.attr,
-	NULL,
-};
-
-static struct attribute_group attr_group = {
-	.attrs = attrs,
-	.name = DEVFREQ_CONSERVATIVE,
-};
-
 static int devfreq_conservative_start(struct devfreq *devfreq)
 {
 	if (devfreq->data == NULL) {
@@ -218,13 +126,12 @@ static int devfreq_conservative_start(struct devfreq *devfreq)
 
 	devfreq_monitor_start(devfreq);
 
-	return devfreq_policy_add_files(devfreq, attr_group);
+	return 0;
 }
 EXPORT_SYMBOL(devfreq_conservative_start);
 
 static int devfreq_conservative_stop(struct devfreq *devfreq)
 {
-	devfreq_policy_remove_files(devfreq, attr_group);
 	devfreq_monitor_stop(devfreq);
 
 	return 0;
@@ -266,11 +173,9 @@ EXPORT_SYMBOL(devfreq_conservative_resume);
 static int devfreq_conservative_handler(struct devfreq *devfreq,
 					unsigned int event, void *data)
 {
-	int ret = 0;
-
 	switch (event) {
 	case DEVFREQ_GOV_START:
-		ret = devfreq_conservative_start(devfreq);
+		devfreq_conservative_start(devfreq);
 		break;
 
 	case DEVFREQ_GOV_STOP:
@@ -293,7 +198,7 @@ static int devfreq_conservative_handler(struct devfreq *devfreq,
 		break;
 	}
 
-	return ret;
+	return 0;
 }
 EXPORT_SYMBOL(devfreq_conservative_handler);
 

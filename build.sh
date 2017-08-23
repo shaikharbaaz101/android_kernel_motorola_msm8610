@@ -11,15 +11,15 @@ export KBUILD_BUILD_HOST=JARVIS
 export CONFIG_NO_ERROR_ON_MISMATCH=y
 echo " Building for device condor .......... "
 
-rm -rf Paradox-anykernel/zImage-dtb
-rm -rf Paradox-anykernel/modules/*.ko
-rm -rf arch/arm/boot/zImage
+rm -rf ~/MotoE/Paradox-anykernel/zImage-dtb
+rm -rf ~/MotoE/Paradox-anykernel/modules/*.ko
+rm -rf ~/MotoE/arch/arm/boot/zImage
 echo " Starting build ..........."
 make -j5 zImage-dtb
 echo " Kernel is successfully compiled ......"
-mv arch/arm/boot/zImage-dtb Paradox-anykernel/zImage-dtb
+mv ~/MotoE/arch/arm/boot/zImage-dtb ~/MotoE/Paradox-anykernel/zImage-dtb
 
-find -name "*.ko" -exec cp {} /Paradox-anykernel/modules \;
+find -name "*.ko" -exec cp {} ~/MotoE/Paradox-anykernel/modules \;
 cd ~/MotoE/Paradox-anykernel
 zip -r9 Paradox-R-$(date +'20%y%m%d').zip * -x README Paradox.zip
 

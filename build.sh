@@ -20,7 +20,7 @@ echo " Kernel is successfully compiled ......"
 mv arch/arm/boot/zImage-dtb Paradox-anykernel/zImage-dtb
 
 find -name "*.ko" -exec cp {} /Paradox-anykernel/modules \;
-cd /Paradox-anykernel
+cd ~/MotoE/Paradox-anykernel
 zip -r9 Paradox-R-$(date +'20%y%m%d').zip * -x README Paradox.zip
 
 echo " Kernel is successully packed !! "

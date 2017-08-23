@@ -1,6 +1,6 @@
 #!/bin/bash
 echo " Lets make another Paradox "
-cd ~/motoe/
+
 export ARCH=arm
 echo " Initializing ............. "
 export CROSS_COMPILE=~/arm-eabi-4.9/bin/arm-eabi-

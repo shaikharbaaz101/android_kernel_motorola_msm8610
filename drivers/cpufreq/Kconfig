@@ -232,7 +232,8 @@ config CPU_FREQ_GOV_SMARTASS
            tristate "'smartass' cpufreq governor"
            depends on CPU_FREQ
            help
-             smartass' - a "smart" optimized governor!
+             smartass' - a "smart" optimized governor! 
+
            If in doubt, say N.
 
 config CPU_BOOST

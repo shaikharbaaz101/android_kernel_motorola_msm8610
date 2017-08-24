@@ -4,7 +4,7 @@
 ## AnyKernel setup
 # begin properties
 properties() {
-kernel.string=Greynite by DarkElf @ xda-developers
+kernel.string=PARADOX Kernel by DarkElf @ xda-developers
 do.devicecheck=1
 do.modules=0
 do.cleanup=1

@@ -15,7 +15,8 @@ rm -rf ~/MotoE/Paradox-anykernel/zImage-dtb
 rm -rf ~/MotoE/Paradox-anykernel/modules/*.ko
 rm -rf ~/MotoE/arch/arm/boot/zImage
 echo " Starting build ..........."
-make all -j5 zImage-dtb
+make -j5 zImage-dtb
+make modules
 echo " Kernel is successfully compiled ......"
 mv ~/MotoE/arch/arm/boot/zImage-dtb ~/MotoE/Paradox-anykernel/zImage-dtb
 

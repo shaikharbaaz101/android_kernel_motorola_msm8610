@@ -1,9 +1,7 @@
 #!/bin/bash
 echo " Lets make another Paradox "
 cd ~/MotoE
-export ARCH=arm
 echo " Initializing ............. "
-export CROSS_COMPILE=~/arm-eabi-4.9/bin/arm-eabi-
 make paradox_condor_defconfig
 echo " Getting ready........ "
 export KBUILD_BUILD_USER=Akshay7273

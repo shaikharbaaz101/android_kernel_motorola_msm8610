@@ -23,4 +23,11 @@
 
 extern int dt2w_switch;
 
+extern bool dt2w_scr_suspended;
+extern bool dt2w_in_call;
+extern bool dt2w_prox_covered;
+
+extern void dt2w_touch_suspend(void);
+extern void dt2w_touch_resume(void);
+
 #endif	/* _LINUX_DOUBLETAP2WAKE_H */

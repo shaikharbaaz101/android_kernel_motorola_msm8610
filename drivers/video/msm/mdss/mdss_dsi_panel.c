@@ -29,7 +29,9 @@
 #include <linux/lcd_notify.h>
 #include <linux/gpio.h>
 #include <linux/interrupt.h>
-#include <mach/mmi_panel_notifier.h>
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+#include <linux/input/doubletap2wake.h>
+#endif
 #ifdef CONFIG_POWERSUSPEND
 #include <linux/powersuspend.h>
 #endif
@@ -688,7 +690,7 @@ static int mdss_dsi_panel_cont_splash_on(struct mdss_panel_data *pdata)
 		pdata->panel_info.no_solid_fill)
 		mdss_dsi_sw_reset(pdata);
 
-	mmi_panel_notify(MMI_PANEL_EVENT_DISPLAY_ON, NULL);
+	lcd_notifier_call_chain(LCD_EVENT_ON_END);
 
 	pdata->panel_info.cont_splash_esd_rdy = true;
 
@@ -794,12 +796,15 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 		pr_err("%s: Invalid input data\n", __func__);
 		return -EINVAL;
 	}
-         
+
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+	dt2w_scr_suspended = false;
+#endif
 #ifdef CONFIG_POWERSUSPEND
 	set_power_suspend_state_panel_hook(POWER_SUSPEND_INACTIVE);
 #endif
 
-        lcd_notifier_call_chain(LCD_EVENT_ON_START);
+	lcd_notifier_call_chain(LCD_EVENT_ON_START);
 
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
@@ -807,9 +812,6 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 
 	mfd = pdata->mfd;
 	pr_info("%s+: ctrl=%pK ndx=%d\n", __func__, ctrl, ctrl->ndx);
-
-	if (!mfd->quickdraw_in_progress)
-		mmi_panel_notify(MMI_PANEL_EVENT_PRE_DISPLAY_ON, NULL);
 
 	if (ctrl->partial_mode_enabled
 		&& !pdata->panel_info.panel_dead) {
@@ -836,8 +838,6 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 	}
 
 	if (ctrl->panel_config.bare_board == true) {
-		if (!mfd->quickdraw_in_progress)
-			mmi_panel_notify(MMI_PANEL_EVENT_DISPLAY_ON, NULL);
 		pr_warn("%s: This is bare_board configuration\n", __func__);
 		goto end;
 	}
@@ -853,12 +853,6 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 
 	if (ctrl->on_cmds.cmd_cnt)
 		mdss_dsi_panel_cmds_send(ctrl, &ctrl->on_cmds);
-
-	/* Send display on notification.  This will need to be revisited once
-	   we implement command mode support the way we want, since display
-	   may not be made visible to user until a point later than this */
-	if (!mfd->quickdraw_in_progress)
-		mmi_panel_notify(MMI_PANEL_EVENT_DISPLAY_ON, NULL);
 
 	pdata->panel_info.cont_splash_esd_rdy = true;
 
@@ -897,7 +891,7 @@ end:
 	} else
 		dropbox_count = 0;
 
-        lcd_notifier_call_chain(LCD_EVENT_ON_END);
+	lcd_notifier_call_chain(LCD_EVENT_ON_END);
 
 	pr_info("%s-. Pwr_mode(0x0A) = 0x%x\n", __func__, pwr_mode);
 
@@ -915,6 +909,12 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
+#ifdef CONFIG_TOUCHSCREEN_PREVENT_SLEEP
+	dt2w_scr_suspended = true;
+#endif
+
+	lcd_notifier_call_chain(LCD_EVENT_OFF_START);
+
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 
@@ -922,9 +922,6 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 	pr_info("%s+: ctrl=%pK ndx=%d\n", __func__, ctrl, ctrl->ndx);
 
 	mipi  = &pdata->panel_info.mipi;
-
-	if (!mfd->quickdraw_in_progress)
-		mmi_panel_notify(MMI_PANEL_EVENT_PRE_DISPLAY_OFF, NULL);
 
 	if (ctrl->panel_config.bare_board == true)
 		goto disable_regs;
@@ -950,9 +947,6 @@ disable_regs:
 		mdss_dsi_panel_regulator_on(pdata, 0);
 	}
 
-	if (!mfd->quickdraw_in_progress)
-		mmi_panel_notify(MMI_PANEL_EVENT_DISPLAY_OFF, NULL);
-
 	if (pdata->panel_info.dynamic_cabc_enabled)
 		pdata->panel_info.cabc_mode = CABC_OFF_MODE;
 
@@ -962,7 +956,7 @@ disable_regs:
 
 	lcd_notifier_call_chain(LCD_EVENT_OFF_END);
 
-        pr_info("%s-:\n", __func__);
+	pr_info("%s-:\n", __func__);
 
 	return 0;
 }
